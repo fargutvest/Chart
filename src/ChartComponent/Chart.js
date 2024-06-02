@@ -178,7 +178,11 @@ function getNbrbApi() {
             // is specified in address line year is current, then end of current year probably so far did not came
             // so endDate evaluated as today date
             let todayMounth = today.getMonth() + 1;// '+1' needs because 'getMonth' returns is zero-based index of mounth
-            endDate = today.getDate() + "." + todayMounth + "." + today.getFullYear();
+            todayMounth = twoDigits(todayMounth);
+
+            let todayDay = today.getDate();
+            todayDay = twoDigits(todayDay); 
+            endDate = todayDay + "." + todayMounth + "." + today.getFullYear();
         }
 
     }
@@ -197,7 +201,7 @@ function getNbrbApi() {
 
 
 function getYearFormUrl(){
-    let url = new URL(window.location.href);
+    let url = new URL(window.location.href.replace("#",""));
     let end = url.pathname.substring(7); // trim scheme, subdomain, domain, top level domain, port number, and "Chart" 
 
     let yearsArr = [];
@@ -217,7 +221,7 @@ function getYearFormUrl(){
 }
 
 function getMonthFromUrl() {
-    let url = new URL(window.location.href);
+    let url = new URL(window.location.href.replace("#",""));
     let end = url.pathname.substring(7).toLowerCase(); // trim scheme, subdomain, domain, top level domain, port number, and "Chart" 
 
 	let mounth;
