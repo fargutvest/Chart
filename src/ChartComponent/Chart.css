@@ -1,9 +1,17 @@
 #container{
-    display:flex;
-}
-
-#thumb{
-width: 100%;
-border-bottom: 3px solid red; 
-position: absolute;
-}
+    display: flex;
+    }
+    
+    #thumb {
+        width: 100%;
+        border-bottom: 3px solid red;
+        position: absolute;
+    }
+    
+    #lbStartDate, #lbEndDate{
+        width: 100px;
+        position: absolute;
+        color: gray;
+        bottom: 0px;
+        z-index: -1;
+    }

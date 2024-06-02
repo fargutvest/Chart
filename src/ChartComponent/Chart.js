@@ -3,13 +3,15 @@ import React, { useEffect } from "react";
 import $ from 'jquery';
 
 let nbrbAPI = "https://api.nbrb.by/ExRates/Rates/Dynamics/431?startDate=" + parseRuDate('01.01.2023') + "&endDate=" + parseRuDate('31.12.2023');
-const padding = 25;
-const mountsArr = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
+let startDate;
+let endDate;
 
+const padding = 25;
+const mountsArr = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 
 export default function Chart() {
     useEffect(() => {
-       
+
         nbrbAPI = getNbrbApi();
 
         console.log(nbrbAPI);
@@ -21,17 +23,27 @@ export default function Chart() {
         const ctx = canvas.getContext("2d");
         const canwasWidht = canvas.width;
         const canvasHeight = canvas.height;
+      
+        const lbStartDate = document.getElementById("lbStartDate");
+        lbStartDate.innerText = startDate;
+        const lbEndDate = document.getElementById("lbEndDate");
+        lbEndDate.innerText = endDate;
+        lbEndDate.style.left = canwasWidht - 120 + "px";
+
         container.addEventListener("mousemove", (e) => {
             thumb.style.top = e.y + "px";
         });
-       callApi(nbrbAPI, ctx, canwasWidht, canvasHeight, padding);
+        callApi(nbrbAPI, ctx, canwasWidht, canvasHeight, padding);
     }, []);
 
     return (
         <div id="container">
             <canvas id="myCanvas"></canvas>
+            <h1 id="lbStartDate"></h1>
+            <h1 id="lbEndDate"></h1>
             <div id="thumb" />
         </div>
+
     )
 }
 
@@ -152,10 +164,7 @@ function getNbrbApi() {
 
     let year = getYearFormUrl();
     let mounth = getMonthFromUrl();
-
-    let startDate;
-    let endDate;
-
+    
     if (!mounth && year) {
         // if mounth not presented in address line, and year presented it means user wants to see history for whole specified year 
         startDate = "01.01." + year; // begin of year date
@@ -176,6 +185,7 @@ function getNbrbApi() {
     else {
         // in address line presented month and year, it means user wants to see history for specified mounts of specified year
         let monthNumber = getMonthNumber(mounth);
+        monthNumber = twoDigits(monthNumber);
         let daysInMounth = new Date(year, monthNumber, 0).getDate();
         startDate = "01." + monthNumber + "." + year; // begin of month
         endDate = daysInMounth + "." + monthNumber + "." + year; // max day in specified month of specified year
@@ -208,7 +218,7 @@ function getYearFormUrl(){
 
 function getMonthFromUrl() {
     let url = new URL(window.location.href);
-    let end = url.pathname.substring(7); // trim scheme, subdomain, domain, top level domain, port number, and "Chart" 
+    let end = url.pathname.substring(7).toLowerCase(); // trim scheme, subdomain, domain, top level domain, port number, and "Chart" 
 
 	let mounth;
     mountsArr.forEach(item => {
@@ -222,6 +232,13 @@ function getMonthFromUrl() {
 }
 function getMonthNumber(mounth) {
     return mountsArr.indexOf(mounth) + 1; // '+1' needs because 'indexOf' is zero-based
+}
+
+function twoDigits(value) {
+    if (value <= 9)
+        value = "0" + value;
+
+    return value
 }
 
 
