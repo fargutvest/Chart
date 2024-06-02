@@ -13,6 +13,7 @@ let endDate;
 
 const padding = 25;
 const mountsArr = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+const pointToDataMap = new Map();
 
 export default function Chart() {
     useEffect(() => {
@@ -23,6 +24,7 @@ export default function Chart() {
         const container = document.getElementById("container");
         const canvas = document.getElementById("myCanvas");
         const thumb = document.getElementById("thumb");
+        const thumbText = document.getElementById("thumbText");
         canvas.width = window.innerWidth - 50;
         canvas.height = window.innerHeight - 50;
         const ctx = canvas.getContext("2d");
@@ -34,9 +36,22 @@ export default function Chart() {
         const lbEndDate = document.getElementById("lbEndDate");
         lbEndDate.innerText = endDate;
         lbEndDate.style.left = canwasWidht - 120 + "px";
-
+		
         container.addEventListener("mousemove", (e) => {
             thumb.style.top = e.y + "px";
+			let x = e.x;
+			let y = canvasHeight - e.y;
+            thumbText.innerText = "";
+            let inaccuracy = 30; // innacuracy of mouse position, when exchange rate data stil available in map by mouse x,y coordinates
+            for (let i_x = -inaccuracy; i_x < inaccuracy; i_x++) {
+                for (let i_y = -inaccuracy; i_y < inaccuracy; i_y++) {
+                    let key = [x + i_x, y + i_y].join("::");
+                    if (pointToDataMap.has(key)) {
+                        thumbText.innerText = pointToDataMap.get(key);
+                        thumbText.style.right = canwasWidht - e.x - 20 + "px";
+                    }
+                }
+            }
         });
         callApi(nbrbAPI, ctx, canwasWidht, canvasHeight, padding);
     }, []);
@@ -46,7 +61,9 @@ export default function Chart() {
             <canvas id="myCanvas"></canvas>
             <h1 id="lbStartDate"></h1>
             <h1 id="lbEndDate"></h1>
-            <div id="thumb" />
+            <div id="thumb">
+                <a id="thumbText"></a>
+            </div>
         </div>
 
     )
@@ -84,13 +101,14 @@ function scale(val, scaleAndOffset) {
 return (val * scaleAndOffset.scaleY - scaleAndOffset.offsetY)
 }
 
+
+
 function drawChart(data, ctx, canwasWidht, canvasHeight, padding){
 ctx.beginPath();
 drawAxes(ctx, canwasWidht, canvasHeight);
 
 var scaleX = canwasWidht / data.length;
 var previousPoint = {x:0,y:0};
-
 let scaleAndOffset = calcScaleAndOffset(data, canwasWidht, canvasHeight, padding);
 
 for(let i = 0; i < data.length; i++){ 
@@ -100,6 +118,8 @@ for(let i = 0; i < data.length; i++){
    let y2 = scale(data[i].Cur_OfficialRate, scaleAndOffset);
    previousPoint = {x2,y2};
    line(viewPort(x1,y1,x2,y2, canvasHeight), ctx);
+
+   pointToDataMap.set([Math.round(x2), Math.round(y2)].join("::"), data[i].Cur_OfficialRate);
 }
 ctx.lineWidth = 3;
 ctx.stroke();	
