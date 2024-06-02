@@ -2,11 +2,16 @@ import './Chart.css';
 import React, { useEffect } from "react";
 import $ from 'jquery';
 
-const nbrbAPI = "https://api.nbrb.by/ExRates/Rates/Dynamics/431?startDate=" + parseRuDate('01.01.2023') + "&endDate=" + parseRuDate('31.12.2023');
+let nbrbAPI = "https://api.nbrb.by/ExRates/Rates/Dynamics/431?startDate=" + parseRuDate('01.01.2023') + "&endDate=" + parseRuDate('31.12.2023');
 const padding = 25;
+const mountsArr = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
+
 
 export default function Chart() {
     useEffect(() => {
+       
+        nbrbAPI = getNbrbApi();
+
         console.log(nbrbAPI);
         const container = document.getElementById("container");
         const canvas = document.getElementById("myCanvas");
@@ -141,4 +146,82 @@ function parseRuDate(s) {
 
     return new Date(parts[2], parts[1] - 1, parts[0]).toUTCString();
 };
+
+
+function getNbrbApi() {
+
+    let year = getYearFormUrl();
+    let mounth = getMonthFromUrl();
+
+    let startDate;
+    let endDate;
+
+    if (!mounth && year) {
+        // if mounth not presented in address line, and year presented it means user wants to see history for whole specified year 
+        startDate = "01.01." + year; // begin of year date
+        
+        let today = new Date();
+        if (year < today.getFullYear()) {
+            // if specified in address line year is some previous year, then endDate evaluated as end of this year 
+            endDate = "31.12." + year;
+        }
+        else {
+            // is specified in address line year is current, then end of current year probably so far did not came
+            // so endDate evaluated as today date
+            let todayMounth = today.getMonth() + 1;// '+1' needs because 'getMonth' returns is zero-based index of mounth
+            endDate = today.getDate() + "." + todayMounth + "." + today.getFullYear();
+        }
+
+    }
+    else {
+        // in address line presented month and year, it means user wants to see history for specified mounts of specified year
+        let monthNumber = getMonthNumber(mounth);
+        let daysInMounth = new Date(year, monthNumber, 0).getDate();
+        startDate = "01." + monthNumber + "." + year; // begin of month
+        endDate = daysInMounth + "." + monthNumber + "." + year; // max day in specified month of specified year
+    }
+
+    return "https://api.nbrb.by/ExRates/Rates/Dynamics/431?startDate=" + parseRuDate(startDate) + "&endDate=" + parseRuDate(endDate);
+
+}
+
+
+function getYearFormUrl(){
+    let url = new URL(window.location.href);
+    let end = url.pathname.substring(7); // trim scheme, subdomain, domain, top level domain, port number, and "Chart" 
+
+    let yearsArr = [];
+    for (let year = 2000; year <= new Date().getFullYear(); year++) {
+        yearsArr.push(year);
+    }
+
+	let year;
+    yearsArr.forEach(item => {
+        if (end.includes(item)) {
+            year = item;
+			return;
+        }
+    });
+
+	return year;
+}
+
+function getMonthFromUrl() {
+    let url = new URL(window.location.href);
+    let end = url.pathname.substring(7); // trim scheme, subdomain, domain, top level domain, port number, and "Chart" 
+
+	let mounth;
+    mountsArr.forEach(item => {
+        if (end.includes(item)) {
+            mounth = item;
+			return;
+        }
+    });
+
+	return mounth;
+}
+function getMonthNumber(mounth) {
+    return mountsArr.indexOf(mounth) + 1; // '+1' needs because 'indexOf' is zero-based
+}
+
 
