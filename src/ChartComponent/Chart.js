@@ -2,7 +2,12 @@ import './Chart.css';
 import React, { useEffect } from "react";
 import $ from 'jquery';
 
-let nbrbAPI = "https://api.nbrb.by/ExRates/Rates/Dynamics/431?startDate=" + parseRuDate('01.01.2023') + "&endDate=" + parseRuDate('31.12.2023');
+// https://www.nbrb.by/statistics/rates/ratesdaily Официальные курсы белорусского рубля по отношению к иностранным валютам, устанавливаемые Национальным банком Республики Беларусь ежедневно
+// https://www.nbrb.by/statistics/rates/graphic График 
+// https://www.nbrb.by/apihelp/exrates API (рекомендуем)
+// "https://api.nbrb.by/ExRates/Rates/Dynamics/431?startDate=" + parseRuDate('01.01.2023') + "&endDate=" + parseRuDate('31.12.2023') - пример использования АПИ
+
+let nbrbAPI;
 let startDate;
 let endDate;
 
