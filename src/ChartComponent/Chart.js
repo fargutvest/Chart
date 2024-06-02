@@ -62,7 +62,7 @@ export default function Chart() {
             <h1 id="lbStartDate"></h1>
             <h1 id="lbEndDate"></h1>
             <div id="thumb">
-                <a id="thumbText"></a>
+                <h1 id="thumbText"></h1>
             </div>
         </div>
 
