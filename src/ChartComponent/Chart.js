@@ -47,7 +47,7 @@ export default function Chart() {
                 for (let i_y = -inaccuracy; i_y < inaccuracy; i_y++) {
                     let key = [x + i_x, y + i_y].join("::");
                     if (pointToDataMap.has(key)) {
-                        thumbText.innerText = pointToDataMap.get(key);
+                        thumbText.innerText = fourFractionalDigits(pointToDataMap.get(key));
                         thumbText.style.right = canwasWidht - e.x - 20 + "px";
                     }
                 }
@@ -268,6 +268,21 @@ function twoDigits(value) {
         value = "0" + value;
 
     return value
+}
+
+function fourFractionalDigits(value) {
+    let valueStr = value.toString();
+	if (valueStr.includes(".") == false) {
+        valueStr = valueStr + ".0000";
+    }
+    else {
+        let words = valueStr.split(".");
+        if (words[1].length < 4) {
+            valueStr = valueStr + "0".repeat(4 - words[1].length)
+        }
+    }
+
+    return valueStr;
 }
 
 
